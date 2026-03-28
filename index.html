@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MemeForge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── Reset & Variables ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0d0f;
+      --surface:   #17171b;
+      --border:    #2a2a32;
+      --accent:    #f5c518;
+      --accent2:   #ff4f4f;
+      --text:      #f0f0f0;
+      --muted:     #888;
+      --radius:    12px;
+      --font-ui:   'DM Sans', sans-serif;
+      --font-meme: 'Bangers', cursive;
+    }
+
+    /* ── Page ── */
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Noise Overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      width: 100%;
+      padding: 28px 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 1;
+    }
+    header h1 {
+      font-family: var(--font-meme);
+      font-size: clamp(2.4rem, 6vw, 3.6rem);
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-shadow: 3px 3px 0 #000, -1px -1px 0 #000;
+      line-height: 1;
+    }
+    header p {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Main Layout ── */
+    main {
+      width: 100%;
+      max-width: 960px;
+      padding: 32px 20px 60px;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 32px;
+      align-items: start;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Panel (Controls) ── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .panel-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    /* ── Form Inputs ── */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    input, textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      padding: 10px 14px;
+      width: 100%;
+      transition: border-color 0.2s;
+      outline: none;
+      resize: none;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(245,197,24,0.12);
+    }
+    textarea { height: 72px; }
+
+    /* ── Hint ── */
+    .hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.4;
+      padding: 10px 12px;
+      background: rgba(245,197,24,0.06);
+      border-left: 2px solid var(--accent);
+      border-radius: 4px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      box-shadow: 0 4px 14px rgba(245,197,24,0.35);
+      width: 100%;
+      font-size: 1rem;
+      padding: 14px;
+    }
+    .btn-primary:hover { box-shadow: 0 6px 20px rgba(245,197,24,0.5); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      flex: 1;
+    }
+    .btn-secondary:hover { border-color: var(--muted); background: rgba(255,255,255,0.04); }
+    .btn-red {
+      background: var(--accent2);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(255,79,79,0.3);
+      flex: 1;
+    }
+    .btn-red:hover { box-shadow: 0 6px 20px rgba(255,79,79,0.45); }
+
+    /* ── Canvas Side ── */
+    .canvas-side {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ── Meme Stage ── */
+    .meme-stage {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Placeholder */
+    .placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 24px;
+    }
+    .placeholder svg { opacity: 0.25; }
+
+    canvas {
+      display: none;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    /* Spinner */
+    .spinner {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .spinner-ring {
+      width: 42px; height: 42px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Action Row ── */
+    .action-row { display: flex; gap: 10px; }
+
+    /* ── Suggestion Box ── */
+    #suggestion-box {
+      display: none;
+      background: rgba(245,197,24,0.07);
+      border: 1px solid rgba(245,197,24,0.25);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--text);
+    }
+    #suggestion-box strong { color: var(--accent); font-weight: 700; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1e1e24;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-size: 0.85rem;
+      color: var(--text);
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 680px) {
+      main {
+        grid-template-columns: 1fr;
+        padding: 20px 16px 50px;
+        gap: 24px;
+      }
+      .meme-stage { aspect-ratio: 4/3; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header>
+  <h1>🔥 MemeForge</h1>
+  <p>Craft internet gold, one meme at a time.</p>
+</header>
+
+<!-- ── Main ── -->
+<main>
+
+  <!-- LEFT: Controls -->
+  <aside class="panel">
+    <p class="panel-title">⚙️ Meme Controls</p>
+
+    <div class="field">
+      <label for="top-text">Top Text</label>
+      <input id="top-text" type="text" placeholder="When you finally fix the bug…" maxlength="80"/>
+    </div>
+
+    <div class="field">
+      <label for="bottom-text">Bottom Text</label>
+      <input id="bottom-text" type="text" placeholder="…but introduce 3 new ones" maxlength="80"/>
+    </div>
+
+    <div class="field">
+      <label for="context">Context <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+      <textarea id="context" placeholder="e.g. 'Monday morning meetings' — we'll suggest fitting text for you"></textarea>
+    </div>
+
+    <div class="hint" id="hint-box" style="display:none;"></div>
+
+    <button class="btn btn-primary" id="generate-btn" onclick="generateMeme()">
+      ⚡ Generate Meme
+    </button>
+  </aside>
+
+  <!-- RIGHT: Canvas + Actions -->
+  <div class="canvas-side">
+
+    <!-- Stage -->
+    <div class="meme-stage" id="meme-stage">
+
+      <!-- Placeholder -->
+      <div class="placeholder" id="placeholder">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <rect x="4" y="4" width="56" height="56" rx="8" stroke="currentColor" stroke-width="2"/>
+          <circle cx="22" cy="24" r="5" stroke="currentColor" stroke-width="2"/>
+          <path d="M4 44 L18 30 L28 40 L40 26 L60 44" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <span>Your meme will appear here.<br/>Hit <strong style="color:var(--accent)">Generate</strong> to start.</span>
+      </div>
+
+      <!-- Spinner -->
+      <div class="spinner" id="spinner">
+        <div class="spinner-ring"></div>
+        <span>Fetching meme…</span>
+      </div>
+
+      <!-- Canvas -->
+      <canvas id="meme-canvas"></canvas>
+    </div>
+
+    <!-- Suggestion -->
+    <div id="suggestion-box"></div>
+
+    <!-- Action Buttons -->
+    <div class="action-row">
+      <button class="btn btn-secondary" id="new-btn" onclick="newMeme()" disabled>
+        🔀 New Image
+      </button>
+      <button class="btn btn-red" id="download-btn" onclick="downloadMeme()" disabled>
+        ⬇️ Download
+      </button>
+    </div>
+
+  </div>
+</main>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ── JavaScript ── -->
+<script>
+  /* ────────────────────────────────────────
+     State
+  ──────────────────────────────────────── */
+  let memes = [];          // full list from API
+  let currentImage = null; // HTMLImageElement
+
+  /* ────────────────────────────────────────
+     Fallback meme image pool (always works,
+     no CORS issues — served from imgur/i.imgflip)
+  ──────────────────────────────────────── */
+  const FALLBACK_MEMES = [
+    'https://i.imgflip.com/1bij.jpg',   // One Does Not Simply
+    'https://i.imgflip.com/4t0m5.jpg',  // Bernie Sanders
+    'https://i.imgflip.com/1bh8.jpg',   // Distracted Boyfriend
+    'https://i.imgflip.com/1g8my.jpg',  // Two Buttons
+    'https://i.imgflip.com/1otk96.jpg', // Expanding Brain
+    'https://i.imgflip.com/1ur9b0.jpg', // Drake Hotline Bling
+    'https://i.imgflip.com/3lmzyx.jpg', // Woman Yelling at Cat
+    'https://i.imgflip.com/26am.jpg',   // Ancient Aliens
+    'https://i.imgflip.com/wgaba.jpg',  // This Is Fine (dog)
+    'https://i.imgflip.com/1h7in3.jpg', // Running Away Balloon
+    'https://i.imgflip.com/2hgfw.jpg',  // Doge
+    'https://i.imgflip.com/1bhk.jpg',   // Futurama Fry
+    'https://i.imgflip.com/8k0sa.jpg',  // Success Kid
+    'https://i.imgflip.com/10vw9h.jpg', // Hide the Pain Harold
+    'https://i.imgflip.com/1yxkcp.jpg', // Change My Mind
+    'https://i.imgflip.com/2bn.jpg',    // Batman Slapping Robin
+    'https://i.imgflip.com/30b1gx.jpg', // Epic Handshake
+    'https://i.imgflip.com/22bdq6.jpg', // They're The Same Picture
+    'https://i.imgflip.com/1jwhww.jpg', // Panik Kalm Panik
+    'https://i.imgflip.com/4pn1an.jpg', // Always Has Been
+  ];
+
+  /* ────────────────────────────────────────
+     Fetch meme list from Imgflip API,
+     fall back to hardcoded list on failure
+  ──────────────────────────────────────── */
+  async function fetchMemes() {
+    if (memes.length) return;
+    try {
+      // Try API via a public CORS proxy first
+      const res  = await fetch('https://corsproxy.io/?url=https://api.imgflip.com/get_memes');
+      const json = await res.json();
+      if (json.success && json.data.memes.length) {
+        memes = json.data.memes;
+        return;
+      }
+    } catch (_) { /* proxy failed, fall through */ }
+
+    // Second attempt: direct fetch (works when served from a server)
+    try {
+      const res  = await fetch('https://api.imgflip.com/get_memes');
+      const json = await res.json();
+      if (json.success && json.data.memes.length) {
+        memes = json.data.memes;
+        return;
+      }
+    } catch (_) { /* also failed */ }
+
+    // Use built-in fallback so the app always works
+    memes = FALLBACK_MEMES.map(url => ({ url }));
+  }
+
+  /* ────────────────────────────────────────
+     Pick a random meme URL
+  ──────────────────────────────────────── */
+  function randomMemeUrl() {
+    if (!memes.length) return FALLBACK_MEMES[Math.floor(Math.random() * FALLBACK_MEMES.length)];
+    const idx = Math.floor(Math.random() * memes.length);
+    return memes[idx].url;
+  }
+
+  /* ────────────────────────────────────────
+     Context → text suggestion (simple rules)
+  ──────────────────────────────────────── */
+  function suggestText(ctx) {
+    const c = ctx.toLowerCase();
+    const rules = [
+      { kw: ['monday','morning'],    top: 'It\'s Monday again…',        bot: 'Why does this keep happening?'    },
+      { kw: ['meeting','meetings'],  top: 'This meeting',               bot: 'could\'ve been an email'           },
+      { kw: ['bug','error','crash'], top: 'Fixed one bug',              bot: 'found 17 more'                    },
+      { kw: ['coffee','caffeine'],   top: 'Before coffee',              bot: 'After coffee'                     },
+      { kw: ['deadline','due'],      top: 'The deadline:',              bot: 'Me, the night before'             },
+      { kw: ['gym','workout'],       top: 'Going to the gym: Day 1',    bot: 'Going to the gym: Also Day 1'     },
+      { kw: ['sleep','tired'],       top: 'Me at 2am',                  bot: 'watching one more episode'        },
+      { kw: ['pizza','food'],        top: 'Ordered one pizza',          bot: 'Ate the whole thing'              },
+      { kw: ['exam','test','study'], top: 'Started studying',           bot: '30 minutes before the exam'       },
+      { kw: ['diet'],                top: 'Day 1 of my diet:',          bot: 'Day 2 of my diet: pizza' },
+    ];
+    for (const rule of rules) {
+      if (rule.kw.some(k => c.includes(k))) return rule;
+    }
+    return null;
+  }
+
+  /* ────────────────────────────────────────
+     Wrap text into lines (canvas)
+  ──────────────────────────────────────── */
+  function wrapText(ctx2d, text, maxWidth) {
+    const words = text.split(' ');
+    const lines = [];
+    let line = '';
+    for (const word of words) {
+      const test = line ? line + ' ' + word : word;
+      if (ctx2d.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = test;
+      }
+    }
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  /* ────────────────────────────────────────
+     Draw text on canvas (classic meme style)
+  ──────────────────────────────────────── */
+  function drawText(ctx2d, text, x, y, maxWidth, lineH, align = 'center') {
+    if (!text.trim()) return;
+    const lines = wrapText(ctx2d, text.toUpperCase(), maxWidth);
+    ctx2d.textAlign = align;
+    ctx2d.lineWidth = 6;
+    ctx2d.strokeStyle = '#000';
+    ctx2d.fillStyle   = '#fff';
+    lines.forEach((line, i) => {
+      ctx2d.strokeText(line, x, y + i * lineH);
+      ctx2d.fillText  (line, x, y + i * lineH);
+    });
+    return lines.length;
+  }
+
+  /* ────────────────────────────────────────
+     Render meme onto canvas
+  ──────────────────────────────────────── */
+  function renderMeme(img, topText, botText) {
+    const canvas = document.getElementById('meme-canvas');
+    const ctx    = canvas.getContext('2d');
+
+    canvas.width  = img.naturalWidth  || img.width;
+    canvas.height = img.naturalHeight || img.height;
+
+    // Draw image
+    ctx.drawImage(img, 0, 0);
+
+    // Font size: ~7% of height, min 24px, max 64px
+    const fs = Math.max(24, Math.min(64, Math.round(canvas.height * 0.07)));
+    ctx.font         = `900 ${fs}px Impact, "Arial Black", sans-serif`;
+    ctx.textBaseline = 'top';
+
+    const pad   = Math.round(canvas.width * 0.04);
+    const maxW  = canvas.width - pad * 2;
+    const lineH = fs * 1.2;
+    const cx    = canvas.width / 2;
+
+    // Top text
+    if (topText.trim()) {
+      drawText(ctx, topText, cx, pad, maxW, lineH);
+    }
+
+    // Bottom text — anchor from bottom
+    if (botText.trim()) {
+      const lines = wrapText(ctx, botText.toUpperCase(), maxW);
+      const totalH = lines.length * lineH;
+      const startY = canvas.height - pad - totalH;
+      ctx.textBaseline = 'top';
+      lines.forEach((line, i) => {
+        ctx.textAlign   = 'center';
+        ctx.lineWidth   = 6;
+        ctx.strokeStyle = '#000';
+        ctx.fillStyle   = '#fff';
+        ctx.strokeText(line, cx, startY + i * lineH);
+        ctx.fillText  (line, cx, startY + i * lineH);
+      });
+    }
+
+    // Show canvas, hide placeholder
+    canvas.style.display = 'block';
+    document.getElementById('placeholder').style.display  = 'none';
+    document.getElementById('spinner').style.display      = 'none';
+  }
+
+  /* ────────────────────────────────────────
+     Load an image by URL (CORS proxy workaround)
+  ──────────────────────────────────────── */
+  function loadImage(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload  = () => resolve(img);
+      img.onerror = () => reject(new Error('Image load failed'));
+      img.src = url;
+    });
+  }
+
+  /* ────────────────────────────────────────
+     Show / hide UI states
+  ──────────────────────────────────────── */
+  function setLoading(on) {
+    document.getElementById('spinner').style.display     = on ? 'flex' : 'none';
+    document.getElementById('placeholder').style.display = on ? 'none' : '';
+    if (on) document.getElementById('meme-canvas').style.display = 'none';
+  }
+
+  function setButtonsEnabled(on) {
+    document.getElementById('new-btn').disabled      = !on;
+    document.getElementById('download-btn').disabled = !on;
+  }
+
+  /* ────────────────────────────────────────
+     Main generate flow
+  ──────────────────────────────────────── */
+  async function generateMeme() {
+    const topText = document.getElementById('top-text').value.trim();
+    const botText = document.getElementById('bottom-text').value.trim();
+    const ctx     = document.getElementById('context').value.trim();
+
+    // Context suggestion
+    hideSuggestion();
+    if (ctx) {
+      const suggestion = suggestText(ctx);
+      if (suggestion) {
+        showSuggestion(suggestion, topText, botText);
+        // Auto-fill if user hasn't typed their own text
+        if (!topText) document.getElementById('top-text').value = suggestion.top;
+        if (!botText) document.getElementById('bottom-text').value = suggestion.bot;
+      } else {
+        document.getElementById('hint-box').style.display = 'block';
+        document.getElementById('hint-box').textContent   = `💡 No preset matched "${ctx}" — using your own text!`;
+        setTimeout(() => { document.getElementById('hint-box').style.display = 'none'; }, 3000);
+      }
+    }
+
+    setLoading(true);
+    setButtonsEnabled(false);
+
+    await fetchMemes();
+    const url = randomMemeUrl();
+
+    try {
+      const img     = await loadImage(url);
+      currentImage  = img;
+      const finalTop = document.getElementById('top-text').value.trim();
+      const finalBot = document.getElementById('bottom-text').value.trim();
+      renderMeme(img, finalTop, finalBot);
+      setButtonsEnabled(true);
+    } catch (e) {
+      setLoading(false);
+      showToast('⚠️ Image failed to load. Try again!');
+    }
+  }
+
+  /* ────────────────────────────────────────
+     New Image (keep same text)
+  ──────────────────────────────────────── */
+  async function newMeme() {
+    const topText = document.getElementById('top-text').value.trim();
+    const botText = document.getElementById('bottom-text').value.trim();
+
+    setLoading(true);
+    setButtonsEnabled(false);
+
+    await fetchMemes();
+    const url = randomMemeUrl();
+
+    try {
+      const img    = await loadImage(url);
+      currentImage = img;
+      renderMeme(img, topText, botText);
+      setButtonsEnabled(true);
+    } catch (e) {
+      setLoading(false);
+      showToast('⚠️ Image failed to load. Try again!');
+    }
+  }
+
+  /* ────────────────────────────────────────
+     Download
+  ──────────────────────────────────────── */
+  function downloadMeme() {
+    const canvas = document.getElementById('meme-canvas');
+    if (canvas.style.display === 'none') return;
+    const link = document.createElement('a');
+    link.download = 'meme.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('✅ Meme downloaded!');
+  }
+
+  /* ────────────────────────────────────────
+     Suggestion UI
+  ──────────────────────────────────────── */
+  function showSuggestion(s, userTop, userBot) {
+    const box = document.getElementById('suggestion-box');
+    box.style.display = 'block';
+    box.innerHTML = `<strong>💡 Context suggestion applied!</strong><br>
+      Top: "<em>${s.top}</em>"${userTop ? ' (overridden by your text)' : ''}<br>
+      Bottom: "<em>${s.bot}</em>"${userBot ? ' (overridden by your text)' : ''}`;
+  }
+  function hideSuggestion() {
+    document.getElementById('suggestion-box').style.display = 'none';
+  }
+
+  /* ────────────────────────────────────────
+     Toast notification
+  ──────────────────────────────────────── */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  /* ────────────────────────────────────────
+     Re-render when text inputs change (live)
+  ──────────────────────────────────────── */
+  ['top-text','bottom-text'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      if (currentImage) {
+        const top = document.getElementById('top-text').value.trim();
+        const bot = document.getElementById('bottom-text').value.trim();
+        renderMeme(currentImage, top, bot);
+      }
+    });
+  });
+
+  /* ────────────────────────────────────────
+     Allow Enter key to trigger generate
+  ──────────────────────────────────────── */
+  ['top-text','bottom-text','context'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generateMeme(); }
+    });
+  });
+
+  // Pre-load meme list silently
+  fetchMemes();
+</script>
+</body>
+</html>
