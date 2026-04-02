@@ -15,7 +15,6 @@ Create high-quality memes instantly by adding your own text to random meme templ
 * 🔀 Generate new meme with same text
 * ⬇️ Download meme as image
 * 📱 Fully responsive design
-* 🔄 Works even without API (fallback images included)
 
 ---
 
