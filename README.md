@@ -1,7 +1,7 @@
 # 🔥 MemeForge
 
 **MemeForge** is a modern,single-file Meme Generator web app built using HTML, CSS, and JavaScript.
-Create high-quality memes instantly by adding your own text to random meme templates.
+Create high-quality memes instantly by adding your own text to random meme templates
 
 ---
 
